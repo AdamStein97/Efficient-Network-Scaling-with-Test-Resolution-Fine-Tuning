@@ -35,17 +35,20 @@ class ImageClassifier(tf.keras.Model):
             base_channels = [16, 22, 26, 32]
         if base_layers is None:
             base_layers = [1, 1, 2, 1]
-        if base_t_expansions:
+        if base_t_expansions is None:
             base_t_expansions = [1, 6, 6, 6]
         if base_kernel_size is None:
             base_kernel_size = [(3, 3), (5, 5), (3, 3), (3, 3)]
 
-        mb_conv_layers = [MBConvBlock(start_stride=base_strides[i],
-                                           channels=round(base_channels[i] * width_scale),
-                                           t=base_t_expansions[i],
-                                           layers=round(base_layers[i] * depth_scale),
-                                           kernel_size=base_kernel_size[i])
-                               for i in range(len(base_channels))]
+        mb_conv_layers = [MBConvBlock(start_stride=base_strides[0], channels=round(base_channels[0] * width_scale),
+                                      t=base_t_expansions[0])]
+
+        mb_conv_layers += [MBConvBlock(start_stride=base_strides[i],
+                                       channels=round(base_channels[i] * width_scale),
+                                       t=base_t_expansions[i],
+                                       layers=round(base_layers[i] * depth_scale),
+                                       kernel_size=base_kernel_size[i])
+                           for i in range(1, len(base_channels))]
 
         return mb_conv_layers
 

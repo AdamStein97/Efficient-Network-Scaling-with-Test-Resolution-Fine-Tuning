@@ -5,5 +5,5 @@ base_strides: [(2, 2), (1, 1), (1, 1), (2, 2)]
 base_channels: [12, 12, 18, 24]
 base_layers: [1, 3, 3, 2]
 base_t_expansions: [1, 6, 6, 6]
-base_kernel_size: [[(3, 3), (5, 5), (3, 3), (3, 3)]
+base_kernel_size: [(3, 3), (5, 5), (3, 3), (3, 3)]
 classifier_filters: 40
