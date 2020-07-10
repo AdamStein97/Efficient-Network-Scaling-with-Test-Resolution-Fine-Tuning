@@ -34,7 +34,7 @@ class Preprocessor():
         return image
 
     @tf.function(experimental_relax_shapes=True)
-    def random_resized_crop(self, image,scale_lower=0.2, scale_upper=0.7):
+    def random_resized_crop(self, image, scale_lower=0.2, scale_upper=0.7, **kwargs):
         image_shape = tf.shape(image)
         pixels = tf.cast(image_shape[-3] * image_shape[-2], tf.float32)
         max_scale = tf.cast(tf.minimum(image_shape[-3], image_shape[-2]), tf.float32) ** 2 / pixels

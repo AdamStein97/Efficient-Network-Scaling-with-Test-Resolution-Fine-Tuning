@@ -6,6 +6,7 @@ from classifier.trainer import Trainer
 from classifier.utils import load_config
 from classifier.tf_models.classifier_model import ImageClassifier
 
+
 config = load_config(master_config_name="fine_tune_config.yaml")
 
 preprocessor = Preprocessor(**config)
@@ -14,6 +15,7 @@ train_set, test_set = preprocessor.load_dataset(**config)
 
 train_ds, test_ds = preprocessor.make_finetune_datasets(**config)
 
+# Initialise model and pass dummy data to load weights
 model = ImageClassifier(**config)
 
 inp = tf.zeros((64, 64, 64, 3))

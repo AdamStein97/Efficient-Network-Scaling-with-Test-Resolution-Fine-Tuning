@@ -4,6 +4,7 @@ from classifier.preprocessor import Preprocessor
 from classifier.trainer import Trainer
 from classifier.utils import load_config
 
+# Train classifier
 config = load_config()
 
 preprocessor = Preprocessor(**config)
@@ -17,7 +18,7 @@ train_ds, test_ds = preprocessor.make_train_datasets(**config)
 model = trainer.train(train_ds, test_ds)
 
 
-
+# Finetune to test resolution
 fine_tune_config = load_config(master_config_name="fine_tune_config.yaml")
 
 fine_tune_trainer = Trainer(model=model, **fine_tune_config)

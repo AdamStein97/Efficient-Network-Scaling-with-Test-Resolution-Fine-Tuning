@@ -11,6 +11,7 @@ config = load_config()
 
 preprocessor = Preprocessor(**config)
 
+# Initialise model and pass dummy data to load weights
 model = ImageClassifier(**config)
 
 inp = tf.zeros((64, 64, 64, 3))
@@ -22,6 +23,7 @@ image_files = [f for f in os.listdir(c.IMG_DIR)]
 image_files.sort()
 
 for image_file in image_files:
+    # Create dict such that data is in same format for preprocessing
     pillow_image = Image.open(os.path.join(c.IMG_DIR, image_file))
     im = {"image": np.array(pillow_image), "label": -1}
 
