@@ -1,0 +1,9 @@
+first_conv_filters: 8
+first_conv_kernel: (7, 7)
+first_conv_stride: (2, 2)
+base_strides: [(2, 2), (1, 1), (1, 1), (1, 1), (2, 2)]
+base_channels: [12, 16, 20, 28, 32]
+base_layers: [1, 1, 1, 1, 1]
+base_t_expansions: [1, 6, 6, 6, 6]
+base_kernel_size: [[(3, 3), (7, 7), (5, 5), (5, 5), (3, 3)]
+classifier_filters: 40

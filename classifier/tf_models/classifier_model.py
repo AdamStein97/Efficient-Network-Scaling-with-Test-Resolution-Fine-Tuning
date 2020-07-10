@@ -16,7 +16,7 @@ class ClassificationLayer(tf.keras.layers.Layer):
 
 class ImageClassifier(tf.keras.Model):
     def __init__(self, first_conv_filters=12, first_conv_kernel=(7,7), first_conv_stride=(2,2),
-                 classifier_filters=40, depth_scale=1, width_scale=1, phi_scaling_factor=1, **kwargs):
+                 classifier_filters=40, depth_scale=1.2, width_scale=1.05, phi_scaling_factor=0, **kwargs):
 
         super(ImageClassifier, self).__init__()
         depth_scale = depth_scale ** phi_scaling_factor
@@ -27,7 +27,7 @@ class ImageClassifier(tf.keras.Model):
         self.classify_layer = ClassificationLayer(classifier_filters)
 
     @staticmethod
-    def _init_mb_conv_layers(width_scale=1, depth_scale=1, base_strides=None, base_channels=None, base_layers=None,
+    def _init_mb_conv_layers(width_scale=1.0, depth_scale=1.0, base_strides=None, base_channels=None, base_layers=None,
                              base_t_expansions=None, base_kernel_size=None, **kwargs):
         if base_strides is None:
             base_strides = [(2, 2), (1, 1), (1, 1), (2, 2)]
@@ -38,7 +38,7 @@ class ImageClassifier(tf.keras.Model):
         if base_t_expansions:
             base_t_expansions = [1, 6, 6, 6]
         if base_kernel_size is None:
-            base_kernel_size = [(3,3),(5,5),(3,3),(3,3)]
+            base_kernel_size = [(3, 3), (5, 5), (3, 3), (3, 3)]
 
         mb_conv_layers = [MBConvBlock(start_stride=base_strides[i],
                                            channels=round(base_channels[i] * width_scale),

@@ -1,20 +1,31 @@
 import tensorflow as tf
 import time
 import datetime
+import os
 
+import classifier as c
 from classifier.tf_models.classifier_model import ImageClassifier
 
 class Trainer():
-    def __init__(self, epochs=150, log=True, save=True, restore=False, lr=1e-3, **kwargs):
+    def __init__(self, epochs=150, log=True, save=True, restore=False, lr=1e-3, log_name="classifier_log",
+                 model=None, model_save_directory="trainer_checkpoints", **kwargs):
         self.epochs = epochs
         self.log = log
+        self.save = save
 
-        self.model = ImageClassifier(**kwargs)
+        if model is None:
+            self.model = ImageClassifier(**kwargs)
+        else:
+            self.model = model
+
         self.optimizer = tf.keras.optimizers.Adam(lr)
 
         checkpoint = tf.train.Checkpoint(optimizer=self.optimizer, model=self.model)
         self.manager = tf.train.CheckpointManager(
-            checkpoint, directory="final_model/", max_to_keep=5)
+            checkpoint, directory=os.path.join(c.MODEL_DIR, model_save_directory), max_to_keep=5)
+
+        if restore:
+            checkpoint.restore(self.manager.latest_checkpoint)
 
         self.train_loss = tf.keras.metrics.Mean(name='train_loss')
         self.train_accuracy = tf.keras.metrics.Accuracy(name='train_acc')
@@ -23,8 +34,8 @@ class Trainer():
         self.val_accuracy = tf.keras.metrics.Accuracy(name='val_acc')
 
         current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        train_log_dir = 'logs/' + "final" + current_time + '/train'
-        val_log_dir = 'logs/' + "final" + current_time + '/val'
+        train_log_dir = os.path.join(c.LOG_DIR, log_name + current_time + '/train')
+        val_log_dir = os.path.join(c.LOG_DIR, log_name + current_time + '/val')
         self.train_summary_writer = tf.summary.create_file_writer(train_log_dir)
         self.val_summary_writer = tf.summary.create_file_writer(val_log_dir)
 
@@ -90,6 +101,8 @@ class Trainer():
 
             print('Time taken for 1 epoch {} sec\n'.format(time.time() - start))
 
-            if (epoch + 1) % 10 == 0:
+            if (epoch + 1) % 10 == 0 and self.save:
                 self.manager.save()
+
+        return self.model
 

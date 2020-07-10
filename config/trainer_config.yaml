@@ -1,0 +1,7 @@
+epochs: 150
+log: 1
+save: 1
+restore: 0
+lr: 0.001
+log_name: "classifier_log"
+model_save_directory: "trainer_checkpoints"

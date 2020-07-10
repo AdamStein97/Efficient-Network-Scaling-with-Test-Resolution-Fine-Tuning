@@ -1,0 +1,14 @@
+test_set_size: 4000
+batch_size: 64
+base_k_train: 64
+base_k_image_test: 72
+base_k_test: 64
+sigma: 0.444
+
+res_scale: 1.23
+depth_scale: 1.2
+width_scale: 1.05
+phi_scaling_factor: 4
+
+base_model_config: "model_config1.yaml"
+trainer_config: "trainer_config.yaml"
