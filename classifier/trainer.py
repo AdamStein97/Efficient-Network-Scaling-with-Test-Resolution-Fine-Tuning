@@ -33,11 +33,12 @@ class Trainer():
         self.val_loss = tf.keras.metrics.Mean(name='val_loss')
         self.val_accuracy = tf.keras.metrics.Accuracy(name='val_acc')
 
-        current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        train_log_dir = os.path.join(c.LOG_DIR, log_name + current_time + '/train')
-        val_log_dir = os.path.join(c.LOG_DIR, log_name + current_time + '/val')
-        self.train_summary_writer = tf.summary.create_file_writer(train_log_dir)
-        self.val_summary_writer = tf.summary.create_file_writer(val_log_dir)
+        if self.log:
+            current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            train_log_dir = os.path.join(c.LOG_DIR, log_name + current_time + '/train')
+            val_log_dir = os.path.join(c.LOG_DIR, log_name + current_time + '/val')
+            self.train_summary_writer = tf.summary.create_file_writer(train_log_dir)
+            self.val_summary_writer = tf.summary.create_file_writer(val_log_dir)
 
     @staticmethod
     def loss_function(y_true, y_pred):

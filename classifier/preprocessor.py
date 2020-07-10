@@ -109,7 +109,7 @@ class Preprocessor():
                            )
         return fine_tune_ds, fine_tune_test_ds
 
-    def load_dataset(self, test_set_size=4000, shuffle=True):
+    def load_dataset(self, test_set_size=4000, shuffle=True, **kwargs):
         examples, metadata = tfds.load('cats_vs_dogs', with_info=True)
         dataset = examples['train']
 

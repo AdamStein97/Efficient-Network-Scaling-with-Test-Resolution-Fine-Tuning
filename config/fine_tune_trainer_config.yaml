@@ -1,0 +1,7 @@
+epochs: 40
+log: 1
+save: 1
+restore: 0
+lr: 0.0001
+log_name: "fine_tune_classifier_log"
+model_save_directory: "fine_tune_checkpoints"
