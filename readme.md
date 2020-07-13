@@ -45,7 +45,7 @@ Images are never padded.
 Tan et al. proposed a framework of efficiently scaling up CNNs by grid searching scaling
 parameters on small models and using these to extrapolate to very large models [1]. This 
 framework allowed them to design EfficientNet which could gain similar performance to 
-ResNet [3] models but with roughly 6x less latency.
+ResNet models but with roughly 6x less latency.
 
 A baseline architecture is designed and then we perform a grid search on a scaling parameter
 for depth, width (# channels) and resolution referred to <img src="https://render.githubusercontent.com/render/math?math=\alpha">,
@@ -140,6 +140,7 @@ We scale up the network in the following way:
 
 - Stage 1 and 6 remain the same
 - Stage 2 is always 1 layer but the new of cahnnels can increase
+- Stage 3, 4, 5  have their channels and layers multiplied by the scaling parameters
 - The resolution is scaled during preprocessing
 - The scaled number of channels and layer is rounded to the nearest integer
 
@@ -172,8 +173,7 @@ At test time we have been resizing the image (preserving the aspect ratio) and t
 We then take a centre crop of size (`k_test`, `k_test`). To calculate the estimated change of scale between train and test time
 we calculate: 
 
-<img src="https://render.githubusercontent.com/render/math?math=r = \sigma \cdot \ k^{image}_{test}/k_{train}">
-where <img src="https://render.githubusercontent.com/render/math?math=(k_{train}, k_{train})"> is the resolution of our 
+<img src="https://render.githubusercontent.com/render/math?math=r = \sigma \cdot \ k^{image}_{test}/k_{train}"> where <img src="https://render.githubusercontent.com/render/math?math=(k_{train}, k_{train})"> is the resolution of our 
 train crops.
 
 We scale up the size of our test time images by <img src="https://render.githubusercontent.com/render/math?math=1/r">.
@@ -188,17 +188,48 @@ Up to this point, we have been using the same test set to select our optimum bas
 and optimum scaling parameters. To gain a more realistic performance estimate we take a 
 different test set of the same size at random.
 
-The models were scaled up using <img src="https://render.githubusercontent.com/render/math?math=\phi=4">
+The model was scaled up using <img src="https://render.githubusercontent.com/render/math?math=\phi=4">. We train the model over 150 epochs with a learning rate of 1e-3. We then fine tune the model 
+to the larger test resolution over 40 epochs with a learning rate of 1e-4.
 
-| Model | Test Loss | Test Accuracy
-|---|---|---|
-| Trained without fine tuning | 0.2520 | 89.77% 
-| Trained with fine tuning | 0.1277 | 94.66%  
+
+| Model | Test Resolution | Test Loss | Test Accuracy 
+|---|---|---|---|
+| Trained without fine tuning | Same as original training | 0.2520 | 89.77% 
+| Trained with fine tuning | Roughly double compared to original training | 0.1277 | 94.66%  
 
 ## Install
 
+Create Environment: `conda create --name classifier python=3.6`
+
+Activate Environment: `conda activate classifier`
+
+Make Install Executable: `chmod +x install.sh`
+
+Install Requirements: `./install.sh`
+
 ## Run
+
+Train: python -m examples.example_train_and_fine_tune_classifier
+
+Predict: python -m examples.example_predict
 
 ## Library Structure
 
+- __classifier__: Library
+    - __tf_models__: Tensorflow model code, instances of tf.keras.Model or tf.keras.layers.Layer
+    - __trainer__: Code to train the model
+    - __preprocessor__: Preprocesses training and test data
+    - __utils__: Extra utility functions
+- __config__: Yaml files with configurations for models and input data
+- __example_images__: Examples images from training set
+- __examples__: Examples of how to effectively use the library
+- __logs__: Saved training logs
+- __saved_models__: Saved model weights
+
 ## References
+
+[1] Mingxing Tan and Quoc V. Le. EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks. 
+2019, https://arxiv.org/pdf/1905.11946v3.pdf
+
+[2] Hugo Touvron and Andrea Vedaldi and Matthijs Douze and Herve Jegou. Fixing the train-test resolution discrepancy. 2019,
+https://arxiv.org/pdf/1906.06423.pdf
