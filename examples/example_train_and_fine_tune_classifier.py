@@ -13,7 +13,7 @@ trainer = Trainer(**config)
 
 train_set, test_set = preprocessor.load_dataset(**config)
 
-train_ds, test_ds = preprocessor.make_train_datasets(**config)
+train_ds, test_ds = preprocessor.make_train_datasets(train_set, test_set, **config)
 
 model = trainer.train(train_ds, test_ds)
 
@@ -23,7 +23,7 @@ fine_tune_config = load_config(master_config_name="fine_tune_config.yaml")
 
 fine_tune_trainer = Trainer(model=model, **fine_tune_config)
 
-fine_tune_train_ds, fine_tune_test_ds = preprocessor.make_finetune_datasets(**fine_tune_config)
+fine_tune_train_ds, fine_tune_test_ds = preprocessor.make_finetune_datasets(train_set, test_set, **fine_tune_config)
 
 model = fine_tune_trainer.train(fine_tune_train_ds, fine_tune_test_ds)
 

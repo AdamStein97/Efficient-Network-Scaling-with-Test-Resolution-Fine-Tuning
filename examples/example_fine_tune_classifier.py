@@ -13,7 +13,7 @@ preprocessor = Preprocessor(**config)
 
 train_set, test_set = preprocessor.load_dataset(**config)
 
-train_ds, test_ds = preprocessor.make_finetune_datasets(**config)
+train_ds, test_ds = preprocessor.make_finetune_datasets(train_set, test_set, **config)
 
 # Initialise model and pass dummy data to load weights
 model = ImageClassifier(**config)

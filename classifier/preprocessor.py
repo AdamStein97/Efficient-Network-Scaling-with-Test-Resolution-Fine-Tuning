@@ -67,15 +67,15 @@ class Preprocessor():
 
 
     @tf.function(experimental_relax_shapes=True)
-    def test_preprocess(self, example):
+    def test_preprocess(self, example, set_scale_ratio):
         image, label = example['image'], example['label']
         image = tf.image.convert_image_dtype(image, tf.float32)
-        image = self.center_crop(image, self.k_image_test, self.k_test, self.scale_ratio)
+        image = self.center_crop(image, self.k_image_test, self.k_test, set_scale_ratio)
         return image, label
 
     def make_train_datasets(self, train_set, test_set, batch_size=64, **kwargs):
         preprocess_train = lambda x: self.train_preprocess(x, **kwargs)
-        preprocess_test = lambda x: self.test_preprocess(x, tf.constant(1.0, dtype=tf.float32), **kwargs)
+        preprocess_test = lambda x: self.test_preprocess(x, tf.constant(1.0, dtype=tf.float32))
 
         train_ds = (train_set
                     .shuffle(4096)
@@ -94,16 +94,18 @@ class Preprocessor():
         return train_ds, test_ds
 
     def make_finetune_datasets(self, train_set, test_set, batch_size=64, **kwargs):
+        preprocess_test = lambda x: self.test_preprocess(x, self.scale_ratio)
+
         fine_tune_ds = (train_set
                        .shuffle(4096)
-                       .map(self.test_preprocess, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+                       .map(preprocess_test, num_parallel_calls=tf.data.experimental.AUTOTUNE)
                        .batch(batch_size, drop_remainder=True)
                        .prefetch(1)
                        )
 
         fine_tune_test_ds = (test_set
                            .shuffle(4096)
-                           .map(self.test_preprocess, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+                           .map(preprocess_test, num_parallel_calls=tf.data.experimental.AUTOTUNE)
                            .batch(batch_size, drop_remainder=True)
                            .prefetch(1)
                            )

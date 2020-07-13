@@ -12,7 +12,7 @@ trainer = Trainer(**config)
 
 train_set, test_set = preprocessor.load_dataset(**config)
 
-train_ds, test_ds = preprocessor.make_train_datasets(**config)
+train_ds, test_ds = preprocessor.make_train_datasets(train_set, test_set, **config)
 
 model = trainer.train(train_ds, test_ds)
 
