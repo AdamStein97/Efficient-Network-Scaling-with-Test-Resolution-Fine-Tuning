@@ -10,7 +10,7 @@ class Preprocessor():
         self.k_image_test = int(round(base_k_image_test * res_scale))
         self.k_test = int(round(base_k_test * res_scale))
 
-        self.scale_ratio = tf.constant(1.0 / (sigma * (self.k_image_test / self.k_test)),  dtype=tf.float32)
+        self.scale_ratio = tf.constant(1.0 / (sigma * (self.k_image_test / self.k_train)),  dtype=tf.float32)
 
     @tf.function
     def augment(self, image, max_brightness_delta=0.25):

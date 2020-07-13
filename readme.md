@@ -132,11 +132,68 @@ parameters and evaluated their performance.
 Stage 6 is followed with an additional batch normalisation, global average pooling 
 and a dense layer with softmax for the two labels.
 
-
-
 ## Scaling Factor Selection
 
+Given our baseline selected architecture, we perform a grid search on optimum values
+for <img src="https://render.githubusercontent.com/render/math?math=\alpha, \beta,\gamma">. 
+We scale up the network in the following way:
+
+- Stage 1 and 6 remain the same
+- Stage 2 is always 1 layer but the new of cahnnels can increase
+- The resolution is scaled during preprocessing
+- The scaled number of channels and layer is rounded to the nearest integer
+
+|Experiment | <img src="https://render.githubusercontent.com/render/math?math=\alpha">  | <img src="https://render.githubusercontent.com/render/math?math=\beta">  | <img src="https://render.githubusercontent.com/render/math?math=\gamma"> | Test Loss  | Test Accuracy | 
+|---|---|---|---|---|---|
+| 1  | 1.2 | 1.05 | 1.23 | __0.2581__ | __89.09%__
+| 2  | 1.2 | 1.23 | 1.05 | 0.2846 | 87.88%
+| 3  | 1.4 | 1.02 | 1.17 | 0.2623 | __89.09%__
+| 4  | 1.4 | 1.05 | 1.14 | 0.2659 | 87.95%
+| 5  | 1.4 | 1.14 | 1.05 | 0.3356 | 85.64%
+| 6  | 1.4 | 1.17 | 1.02 | 0.3230 | 85.58%
+
+The scaling parameters in experiment 1 were selected as the optimum. 
+
+### Train-Test Resolution
+
+We need to calculate the scale to increase our test time resolution by such that images
+appear at the same scale. Touvron et al. outlined an approach to do this. 
+
+First we calculate the expected proportion, <img src="https://render.githubusercontent.com/render/math?math=\sigma">, 
+of the training image used in the crop. We uniformly sample this during
+training between 0.2 and 0.7 but occasionally the aspect ratio of an image does not allow
+a square crop of our selected size. We calculate the estimated proportion by running the
+preprocessing over our entire training set and taking an average of the proportion of the image used.
+
+We found: 
+<img src="https://render.githubusercontent.com/render/math?math=\sigma \approx 0.444">
+
+At test time we have been resizing the image (preserving the aspect ratio) and then croping it to a square of size (`k_image_test`, `k_image_test`).
+We then take a centre crop of size (`k_test`, `k_test`). To calculate the estimated change of scale between train and test time
+we calculate: 
+
+<img src="https://render.githubusercontent.com/render/math?math=r = \sigma \cdot \ k^{image}_{test}/k_{train}">
+where <img src="https://render.githubusercontent.com/render/math?math=(k_{train}, k_{train})"> is the resolution of our 
+train crops.
+
+We scale up the size of our test time images by <img src="https://render.githubusercontent.com/render/math?math=1/r">.
+
+In our case we estimate <img src="https://render.githubusercontent.com/render/math?math=r = 0.444 \cdot \ 72/ 64 \approx 0.5">. 
+This means that the resolution of our images at test time should be twice that of our training images.
+
+
 ## Final Results
+
+Up to this point, we have been using the same test set to select our optimum baseline model
+and optimum scaling parameters. To gain a more realistic performance estimate we take a 
+different test set of the same size at random.
+
+The models were scaled up using <img src="https://render.githubusercontent.com/render/math?math=\phi=4">
+
+| Model | Test Loss | Test Accuracy
+|---|---|---|
+| Trained without fine tuning | 0.2520 | 89.77% 
+| Trained with fine tuning | 0.1277 | 94.66%  
 
 ## Install
 
