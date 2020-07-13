@@ -5,7 +5,7 @@ when resources are limited. The explored use case is an image classifier scaled 
 recent EfficientNet paper [1] with post-training fine tuning to fix the train-test resolution discrepancy and 
 dramatically improve performance [2].
 
-## Motivation
+## 1. Motivation
 
 Neural Networks on computer vision problems can often take an extremely long time to
 train. This is because convolution is a relatively slow operation especially as the 
@@ -22,25 +22,25 @@ taken from two 2019 papers that achieved high commendation from leading CV confe
 The example use case to demonstrate these techniques will be an image classification 
 problem of predicting if an image is either a cat or a dog.
 
-## Data
+## 2. Data
 
 The dataset used for training the models will be the "cats_vs_dogs" taken from the 
 Tensorflow datasets catalogue. The dataset contains 23,000 images of varying size; 4,000
 of these images are taken to be our test set. Example images from this dataset can be found
 in the `example_images` directory. 
 
-### Augmentation
+### 2.1. Augmentation
 
 To improve model performance, images are augmented with random flipping along with alterations 
 to brightness and saturation. In addition to this, random crops are taken. The proportion 
 of the image placed within the crop is uniformly sampled between 0.2 and 0.7. All crops are
-square and the resolution of this crop is then scaled to 64x64. If the aspect ratio is too wide
+square and the resolution of this crop is then scaled to (`k_train`, `k_train`). If the aspect ratio is too wide
 to create a square crop with the samples proportion then the largest possible square is taken. 
 Images are never padded.
 
-## Background
+## 3. Background
 
-### Network Scaling
+### 3.1. Network Scaling
 
 Tan et al. proposed a framework of efficiently scaling up CNNs by grid searching scaling
 parameters on small models and using these to extrapolate to very large models [1]. This 
@@ -71,9 +71,9 @@ space for large CNNs. This leads to a far better use of resources as illustrated
 Tan et al. derived their baseline model using a reinforcement learning approach but this
 was seen to be too computationally expensive for this project. As an alternative a few 
 different baseline models were designed by hand and evaluated to find the optimum. This 
-will be discussed further in section X.X.
+will be discussed further in section 4.
 
-### Train-Test Resolution Discrepancy
+### 3.2. Train-Test Resolution Discrepancy
 
 For our training examples, we use the common approach of taking random crops on different
 scales. At test time, we want to utilise as much of the image as possible rather than taking
@@ -89,8 +89,7 @@ as they did during training.
 Having the images at a different resolution for testing skews the activation 
 statistics of the model so fine tuning is needed. The classifier is trained normally
 using the random crop method on the training set. The model is then fine tuned by 
-performing the test time preprocessing on the training set and using this to train the 
-model. The increased resolution of the images does increase the latency of the model
+performing the test time preprocessing on the training set and optimising on the result. The increased resolution of the images does increase the latency of the model
 but the fine tuning phase is relatively short so is still possible when computational 
 resources are limited.
 
@@ -98,7 +97,7 @@ This approach allows models to be trained on smaller images to significantly red
 training time. They achieved the highest ImageNet single-crop accuracy 
 at the time of publication in 2019.
 
-## Network Architecture
+## 4. Network Architecture
 
 The baseline model was designed from MBConv blocks with the resolution decreasing through
 the network and the width increasing. With the scaling strategy, choosing an optimum
@@ -110,7 +109,7 @@ parameters and evaluated their performance.
 - __Model B__: Designed to have medium depth with larger kernel sizes and a medium amount of channels
 - __Model C__: Designed to be shallower with more channels and smaller kernel sizes
 
-### Results
+### 4.1. Results
 
 | Model Name  | Test Loss  | Test Accuracy | 
 |---|---|---|
@@ -118,7 +117,7 @@ parameters and evaluated their performance.
 | B | 0.4098 | 81.75%  |
 | C  | __0.3561__ | __84.48%__  |
 
-### Selected Architecture
+### 4.2. Selected Architecture
 
 | Stage  | Layer  | Resolution | Kernel Size | Channels | Layers
 |---|---|---|---|---|---|
@@ -132,14 +131,14 @@ parameters and evaluated their performance.
 Stage 6 is followed with an additional batch normalisation, global average pooling 
 and a dense layer with softmax for the two labels.
 
-## Scaling Factor Selection
+## 5. Scaling Factor Selection
 
 Given our baseline selected architecture, we perform a grid search on optimum values
 for <img src="https://render.githubusercontent.com/render/math?math=\alpha, \beta,\gamma">. 
 We scale up the network in the following way:
 
 - Stage 1 and 6 remain the same
-- Stage 2 is always 1 layer but the new of cahnnels can increase
+- Stage 2 is always one layer but the new of cahnnels can increase
 - Stage 3, 4, 5  have their channels and layers multiplied by the scaling parameters
 - The resolution is scaled during preprocessing
 - The scaled number of channels and layer is rounded to the nearest integer
@@ -155,7 +154,7 @@ We scale up the network in the following way:
 
 The scaling parameters in experiment 1 were selected as the optimum. 
 
-### Train-Test Resolution
+## 6. Train-Test Resolution
 
 We need to calculate the scale to increase our test time resolution by such that images
 appear at the same scale. Touvron et al. outlined an approach to do this. 
@@ -182,7 +181,7 @@ In our case we estimate <img src="https://render.githubusercontent.com/render/ma
 This means that the resolution of our images at test time should be twice that of our training images.
 
 
-## Final Results
+## 7. Final Results
 
 Up to this point, we have been using the same test set to select our optimum baseline model
 and optimum scaling parameters. To gain a more realistic performance estimate we take a 
@@ -197,7 +196,7 @@ to the larger test resolution over 40 epochs with a learning rate of 1e-4.
 | Trained without fine tuning | Same as original training | 0.2520 | 89.77% 
 | Trained with fine tuning | Roughly double compared to original training | 0.1277 | 94.66%  
 
-## Install
+## 8. Install
 
 Create Environment: `conda create --name classifier python=3.6`
 
@@ -207,13 +206,13 @@ Make Install Executable: `chmod +x install.sh`
 
 Install Requirements: `./install.sh`
 
-## Run
+## 9. Run
 
 Train: python -m examples.example_train_and_fine_tune_classifier
 
 Predict: python -m examples.example_predict
 
-## Library Structure
+## 10. Library Structure
 
 - __classifier__: Library
     - __tf_models__: Tensorflow model code, instances of tf.keras.Model or tf.keras.layers.Layer
@@ -226,7 +225,7 @@ Predict: python -m examples.example_predict
 - __logs__: Saved training logs
 - __saved_models__: Saved model weights
 
-## References
+## 11. References
 
 [1] Mingxing Tan and Quoc V. Le. EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks. 
 2019, https://arxiv.org/pdf/1905.11946v3.pdf
