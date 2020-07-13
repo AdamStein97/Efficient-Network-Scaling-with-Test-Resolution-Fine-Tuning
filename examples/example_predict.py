@@ -19,7 +19,7 @@ _ = model(inp)
 
 model.load_weights(os.path.join(c.MODEL_DIR, "fine_tuned_classifier"))
 
-image_files = [f for f in os.listdir(c.IMG_DIR)]
+image_files = [f for f in os.listdir(c.IMG_DIR) if "jpeg" in f ]
 image_files.sort()
 
 for image_file in image_files:

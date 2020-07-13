@@ -67,7 +67,9 @@ class Preprocessor():
 
 
     @tf.function(experimental_relax_shapes=True)
-    def test_preprocess(self, example, set_scale_ratio):
+    def test_preprocess(self, example, set_scale_ratio=None):
+        if set_scale_ratio is None:
+            set_scale_ratio = self.scale_ratio
         image, label = example['image'], example['label']
         image = tf.image.convert_image_dtype(image, tf.float32)
         image = self.center_crop(image, self.k_image_test, self.k_test, set_scale_ratio)
